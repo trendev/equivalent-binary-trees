@@ -1,25 +1,23 @@
 package main
 
 import (
-	"fmt"
-
 	"golang.org/x/tour/tree"
 )
 
-// Walk walks the tree t sending all values
-// from the tree to the channel ch.
-func Walk(t *tree.Tree, ch chan int) {
+func walk(t *tree.Tree, ch chan int) {
 	if t.Left != nil {
-		Walk(t.Left, ch)
+		walk(t.Left, ch)
 	}
 	ch <- t.Value
 	if t.Right != nil {
-		Walk(t.Right, ch)
+		walk(t.Right, ch)
 	}
 }
 
-func walk(t *tree.Tree, c chan int) {
-	Walk(t, c)
+// Walk walks the tree t sending all values
+// from the tree to the channel ch and closes the channel
+func Walk(t *tree.Tree, c chan int) {
+	walk(t, c)
 	close(c)
 }
 
@@ -29,14 +27,17 @@ func Same(t1, t2 *tree.Tree) bool {
 
 	ch1, ch2 := make(chan int), make(chan int)
 
-	go walk(t1, ch1)
-	go walk(t2, ch2)
+	go Walk(t1, ch1)
+	go Walk(t2, ch2)
 
 	for {
 		v1, ok1 := <-ch1
 		v2, ok2 := <-ch2
 
-		if !ok1 && !ok2 {
+		// if channels cap() are different
+		// ok1 or ok2 will be true (and the opposite)
+		// and v1 or v2 will be the default value 0
+		if !ok1 && !ok2 { // end of channel
 			return true
 		}
 
@@ -48,13 +49,5 @@ func Same(t1, t2 *tree.Tree) bool {
 }
 
 func main() {
-
-	t1 := tree.New(1)
-	fmt.Println(t1)
-
-	t2 := tree.New(1)
-	t2b := &tree.Tree{t2, 12, nil}
-	fmt.Println(t2b)
-
-	fmt.Println(Same(t1, t2b))
+	// DO NOTHING
 }

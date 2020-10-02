@@ -28,9 +28,14 @@ func TestWalk(t *testing.T) {
 
 }
 
-func TestSameWithEquivalentTrees(t *testing.T) {
+func TestSame(t *testing.T) {
 	t1 := tree.New(1)
 	t2 := tree.New(1)
+	t3 := &tree.Tree{ // one node more
+		Left:  t2,
+		Value: 12,
+		Right: nil,
+	}
 	tt := []struct {
 		name   string
 		trees  []*tree.Tree
@@ -38,28 +43,21 @@ func TestSameWithEquivalentTrees(t *testing.T) {
 	}{
 		{"t1 equals t2", []*tree.Tree{t1, t2}, true},
 		{"t1 equals t1", []*tree.Tree{t1, t1}, true},
+		{"t1 is not equal t3", []*tree.Tree{t1, t3}, false},
 	}
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			if !Same(tc.trees[0], tc.trees[1]) {
-				t.Errorf("%v should equivalent with %v\n", tc.trees[0], tc.trees[1])
+
+			status := "equivalent"
+			if !tc.result {
+				status = "different"
+			}
+
+			if Same(tc.trees[0], tc.trees[1]) != tc.result {
+				t.Errorf("%v\nand\n%v\nshould be %v\n", tc.trees[0], tc.trees[1], status)
 				t.FailNow()
 			}
 		})
-	}
-}
-
-func TestSameWithDifferentDepthTrees(t *testing.T) {
-	t1 := tree.New(1)
-	t2 := tree.New(1)
-	t3 := &tree.Tree{ // t3 will be longer than t1, it's t2 + one single root node
-		Left:  t2,
-		Value: 12,
-		Right: nil,
-	}
-	if Same(t1, t3) {
-		t.Errorf("t1 %v should be different with t3 %v\n", t1, t3)
-		t.FailNow()
 	}
 }

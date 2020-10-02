@@ -31,15 +31,22 @@ func TestWalk(t *testing.T) {
 func TestSameWithEquivalentTrees(t *testing.T) {
 	t1 := tree.New(1)
 	t2 := tree.New(1)
-
-	if !Same(t1, t1) {
-		t.Errorf("t1 %v should be equal with t1\n", t1)
-		t.FailNow()
+	tt := []struct {
+		name   string
+		trees  []*tree.Tree
+		result bool
+	}{
+		{"t1 equals t2", []*tree.Tree{t1, t2}, true},
+		{"t1 equals t1", []*tree.Tree{t1, t1}, true},
 	}
 
-	if !Same(t1, t2) {
-		t.Errorf("t1 %v should equivalent with t2 %v\n", t1, t2)
-		t.FailNow()
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			if !Same(tc.trees[0], tc.trees[1]) {
+				t.Errorf("%v should equivalent with %v\n", tc.trees[0], tc.trees[1])
+				t.FailNow()
+			}
+		})
 	}
 }
 
